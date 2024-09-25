@@ -1,0 +1,8 @@
+@namespace("com.springwolfdemo.flights")
+protocol BookingCancelled {
+	record BookingCancelled {
+		string bookingId;
+		string flightNumber;
+		string cancellationReason;
+	}
+}

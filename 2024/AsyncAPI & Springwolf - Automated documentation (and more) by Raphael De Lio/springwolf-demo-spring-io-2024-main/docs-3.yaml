@@ -1,0 +1,213 @@
+asyncapi: 3.0.0
+info:
+  title: Pegasus
+  version: 1.0.0
+  description: This API provides information about bookings
+  contact:
+    name: Eagle Team
+  x-generator: springwolf
+defaultContentType: application/json
+
+servers:
+  production:
+    host: production.kafka.mycompany.com:9092
+    protocol: kafka-secure
+    description: Don't share with customers!!
+    title: Production Kafka Server
+    security:
+      - type: scramSha512
+    tags:
+      - name: Pegasus System
+        description: Services related to the pegasus system
+      - name: Hawk System
+        description: Services related to the pegasus system
+  staging:
+    host: production.kafka.mycompany.com:9092
+    protocol: kafka
+    description: Customers can use to test integrations!!
+    title: Staging Kafka Server
+    tags:
+      - name: Pegasus System
+        description: Services related to the pegasus system
+      - name: Hawk System
+        description: Services related to the pegasus system
+
+channels:
+  cancelled-bookings:
+    messages:
+      com.springwolfdemo.flights.BookingCancelled:
+        $ref: "#/components/messages/com.springwolfdemo.flights.BookingCancelled"
+    servers:
+      - $ref: "#/servers/production"
+      - $ref: "#/servers/staging"
+  check-ins:
+    messages:
+      com.springwolfdemo.flights.PassengerCheckedIn:
+        $ref: "#/components/messages/com.springwolfdemo.flights.PassengerCheckedIn"
+    bindings:
+      kafka:
+        bindingVersion: 0.5.0
+  confirmed-bookings:
+    messages:
+      com.springwolfdemo.flights.BookingConfirmed:
+        $ref: "#/components/messages/com.springwolfdemo.flights.BookingConfirmed"
+    servers:
+      - $ref: "#/servers/production"
+      - $ref: "#/servers/staging"
+
+components:
+  schemas:
+    HeadersNotDocumented:
+      type: object
+      properties: {}
+      description: "There can be headers, but they are not explicitly documented."
+      examples:
+        - {}
+    SpringKafkaDefaultHeaders-PassengerCheckedIn:
+      type: object
+      properties:
+        __TypeId__:
+          type: string
+          description: Spring Type Id Header
+          enum:
+            - com.springwolfdemo.flights.PassengerCheckedIn
+          examples:
+            - com.springwolfdemo.flights.PassengerCheckedIn
+      examples:
+        - __TypeId__: com.springwolfdemo.flights.PassengerCheckedIn
+    com.springwolfdemo.flights.BookingCancelled:
+      type: object
+      properties:
+        bookingId:
+          type: string
+        cancellationReason:
+          type: string
+        flightNumber:
+          type: string
+      examples:
+        - bookingId: string
+          cancellationReason: string
+          flightNumber: string
+    com.springwolfdemo.flights.BookingConfirmed:
+      type: object
+      properties:
+        arrivalAirport:
+          type: string
+        bookingId:
+          type: string
+        departureAirport:
+          type: string
+        flightNumber:
+          type: string
+        passengerName:
+          type: string
+        seatNumber:
+          type: string
+      examples:
+        - arrivalAirport: string
+          bookingId: string
+          departureAirport: string
+          flightNumber: string
+          passengerName: string
+          seatNumber: string
+    com.springwolfdemo.flights.PassengerCheckedIn:
+      type: object
+      properties:
+        arrivalAirport:
+          type: string
+        bookingId:
+          type: string
+        departureAirport:
+          type: string
+        flightNumber:
+          type: string
+        passengerName:
+          type: string
+        seatNumber:
+          type: string
+      examples:
+        - arrivalAirport: string
+          bookingId: string
+          departureAirport: string
+          flightNumber: string
+          passengerName: string
+          seatNumber: string
+
+  messages:
+    com.springwolfdemo.flights.BookingCancelled:
+      headers:
+        $ref: "#/components/schemas/HeadersNotDocumented"
+      payload:
+        schemaFormat: application/vnd.aai.asyncapi+json;version=3.0.0
+        schema:
+          $ref: "#/components/schemas/com.springwolfdemo.flights.BookingCancelled"
+      name: com.springwolfdemo.flights.BookingCancelled
+      title: BookingCancelled
+      bindings:
+        kafka:
+          bindingVersion: 0.5.0
+    com.springwolfdemo.flights.BookingConfirmed:
+      headers:
+        $ref: "#/components/schemas/HeadersNotDocumented"
+      payload:
+        schemaFormat: application/vnd.aai.asyncapi+json;version=3.0.0
+        schema:
+          $ref: "#/components/schemas/com.springwolfdemo.flights.BookingConfirmed"
+      name: com.springwolfdemo.flights.BookingConfirmed
+      title: BookingConfirmed
+      bindings:
+        kafka:
+          bindingVersion: 0.5.0
+    com.springwolfdemo.flights.PassengerCheckedIn:
+      headers:
+        $ref: "#/components/schemas/SpringKafkaDefaultHeaders-PassengerCheckedIn"
+      payload:
+        schemaFormat: application/vnd.aai.asyncapi+json;version=3.0.0
+        schema:
+          $ref: "#/components/schemas/com.springwolfdemo.flights.PassengerCheckedIn"
+      name: com.springwolfdemo.flights.PassengerCheckedIn
+      title: PassengerCheckedIn
+      bindings:
+        kafka:
+          bindingVersion: 0.5.0
+
+operations:
+  cancelled-bookings_send_sendBookingCancelled:
+    action: send
+    channel:
+      $ref: "#/channels/cancelled-bookings"
+    title: cancelled-bookings_send
+    description: This channel is used to exchange messages about cancelled booking
+      events
+    bindings:
+      kafka:
+        bindingVersion: 0.5.0
+    messages:
+      - $ref: "#/channels/cancelled-bookings/messages/com.springwolfdemo.flights.BookingCancelled"
+
+  check-ins_receive_listenPassengerCheckedIn:
+    action: receive
+    channel:
+      $ref: "#/channels/check-ins"
+    bindings:
+      kafka:
+        groupId:
+          type: string
+          enum:
+            - check-in-processors
+        bindingVersion: 0.5.0
+    messages:
+      - $ref: "#/channels/check-ins/messages/com.springwolfdemo.flights.PassengerCheckedIn"
+
+  confirmed-bookings_send_sendBookingConfirmation:
+    action: send
+    channel:
+      $ref: "#/channels/confirmed-bookings"
+    title: confirmed-bookings_send
+    description: This channel is used to exchange messages about confirmed booking
+      events
+    bindings:
+      kafka:
+        bindingVersion: 0.5.0
+    messages:
+      - $ref: "#/channels/confirmed-bookings/messages/com.springwolfdemo.flights.BookingConfirmed"

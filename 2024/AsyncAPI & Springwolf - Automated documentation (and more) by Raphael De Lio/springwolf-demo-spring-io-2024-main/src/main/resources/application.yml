@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: Pegasus
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    consumer:
+      group-id: example-group-id
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        specific.avro.reader: true
+        schema.registry.url: http://localhost:8081
+
+    bootstrap-servers: localhost:29092
+
+springwolf:
+  enabled: true
+  docket:
+    base-package: com.springwolfdemo.exposed
+    info:
+      title: Pegasus
+      version: 1.0.0
+      description: This API provides information about bookings
+      contact:
+        name: Eagle Team
+
+    servers:
+      production:
+        title: Production Kafka Server
+        description: Don't share with customers!!
+        host: production.kafka.mycompany.com:9092
+        protocol: kafka-secure
+        security:
+          - type: SCRAM_SHA512
+        tags:
+          - name: Pegasus System
+            description: Services related to the pegasus system
+          - name: Hawk System
+            description: Services related to the pegasus system
+
+      staging:
+        title: Staging Kafka Server
+        description: Customers can use to test integrations!!
+        host: production.kafka.mycompany.com:9092
+        protocol: kafka
+        tags:
+          - name: Pegasus System
+            description: Services related to the pegasus system
+          - name: Hawk System
+            description: Services related to the pegasus system
+
+  plugin:
+    kafka:
+      publishing:
+        enabled: true
+        producer:
+          bootstrap-servers: localhost:29092
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+          properties:
+            key:
+              serializer: org.apache.kafka.common.serialization.StringSerializer
+            value:
+              serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+            schema:
+              registry:
+                url: http://localhost:8081
+
+                # -> Schemas

@@ -1,0 +1,11 @@
+@namespace("com.springwolfdemo.flights")
+protocol PassengerCheckedIn {
+	record PassengerCheckedIn {
+		string bookingId;
+		string flightNumber;
+		string passengerName;
+		string departureAirport;
+		string arrivalAirport;
+		string seatNumber;
+	}
+}
